@@ -1,4 +1,5 @@
 import BlogModel from "../models/blogModel.js";
+import cloudinary from "../config/cloudinary.js";
 
 const normalizeStringArray = (value) => {
   if (Array.isArray(value)) {
@@ -62,7 +63,11 @@ const buildBlogPayload = (body) => {
 const createBlog = async (req, res) => {
   try {
     if (req.file) {
-      req.body.uploadedImageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "blogs",
+      });
+
+      req.body.uploadedImageUrl = result.secure_url;
     }
 
     const { payload, error } = buildBlogPayload(req.body);
@@ -101,8 +106,12 @@ const listBlogs = async (_req, res) => {
 const updateBlog = async (req, res) => {
   try {
     if (req.file) {
-      req.body.uploadedImageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-    }
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "blogs",
+  });
+
+  req.body.uploadedImageUrl = result.secure_url;
+}
 
     const { payload, error } = buildBlogPayload(req.body);
 
